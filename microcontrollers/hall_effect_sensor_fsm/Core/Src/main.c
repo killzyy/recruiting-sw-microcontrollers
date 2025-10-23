@@ -18,10 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
 
 /* USER CODE END Includes */
 
@@ -33,7 +38,10 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define ADC_BUF_LEN 4096
+#define M_PI 3.14159265358979323846
+
+#define ADC_BUF_LEN 64
+#define FILTER_LEN 150
 
 /* USER CODE END PD */
 
@@ -48,11 +56,14 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 
 uint16_t adc_buf[ADC_BUF_LEN];
+uint16_t filter_out = 0;
+uint16_t filter_buf[FILTER_LEN];
+uint16_t counter = 0;
+uint32_t sum = 0;
 
 /* USER CODE END PV */
 
@@ -64,7 +75,39 @@ static void MX_ADC1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
-void DMATransferComplete(DMA_HandleTypeDef* hdma);
+uint16_t map(uint16_t val, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max)
+{
+  // Preso da https://docs.arduino.cc/language-reference/en/functions/math/map/#appendix
+
+  return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+uint16_t toMilliVolt(uint16_t val)
+{
+  // Del tutto equivalente a map(val, 0, 4095, 0, 5000) ma usato per semplicità
+
+  return (val * 5000) / 4095;
+}
+
+long gaussian_noise(double mean, double stddev)
+{
+  // Adattato da https://it.wikipedia.org/wiki/Trasformazione_di_Box-Muller
+  double u1 = ((double)rand() + 1) / ((double)RAND_MAX + 1);
+  double u2 = ((double)rand() + 1) / ((double)RAND_MAX + 1);
+
+  double z0 = sqrt(-2.0f * log(u1)) * cos(2 * M_PI * u2);
+
+  double noise = z0 * stddev + mean;
+
+  return lround(noise);
+}
+
+uint16_t correct(long val)
+{
+  if (val < 0) { return (uint16_t)0; }
+  if (val > 5000) { return (uint16_t)5000; }
+  return val;
+}
 
 /* USER CODE END PFP */
 
@@ -79,9 +122,8 @@ void DMATransferComplete(DMA_HandleTypeDef* hdma);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
 
-  char msg[] = "Hello, world!\r\n";
+  /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
 
@@ -108,7 +150,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_DMA_RegisterCallback(&hdma_usart2_tx, HAL_DMA_XFER_CPLT_CB_ID, &DMATransferComplete);
+  srand(time(NULL));
+  HAL_ADCEx_Calibration_Start(&hadc1);
 
   /* USER CODE END 2 */
 
@@ -120,14 +163,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, ADC_BUF_LEN);
+
   while (1)
   {
     /* USER CODE END WHILE */
 
-    huart2.Instance->CR3 |= USART_CR3_DMAT;
-    HAL_DMA_Start_IT(&hdma_usart2_tx, (uint32_t)msg, (uint32_t)&huart2.Instance->TDR, strlen(msg));
-
-    HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -274,9 +315,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel2_3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
 
 }
 
@@ -299,13 +337,9 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : HALL_DIGITAL_Pin */
   GPIO_InitStruct.Pin = HALL_DIGITAL_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(HALL_DIGITAL_GPIO_Port, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -314,21 +348,56 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void DMATransferComplete(DMA_HandleTypeDef* hdma)
-{
-  huart2.Instance->CR3 &= ~USART_CR3_DMAT;
-  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-}
-
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
-{
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-}
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+  if (hadc->Instance == ADC1)
+  {
+    char msg[64];
+    uint16_t analog_val = adc_buf[0];
+    uint16_t analog_mv = toMilliVolt(analog_val);
+    uint16_t noisy_val = correct(analog_mv + gaussian_noise(0.0, 66.7));
+    GPIO_PinState digital_val = HAL_GPIO_ReadPin(HALL_DIGITAL_GPIO_Port, HALL_DIGITAL_Pin);
+    sum += noisy_val - filter_buf[counter];
+    filter_out = sum / FILTER_LEN;
+    filter_buf[counter] = noisy_val;
+    counter++;
+    if (counter == FILTER_LEN) { counter = 0; }
+
+    // La conversione in millivolt viene effettuata perché altrimenti renderebbe il grafico
+    // molto meno fluido, è comunque possibile utilizzare i valori interi e modificare lo script
+    // di Python per far avvenire tutto nel mondo dei numeri interi, ma non consiglio :P
+    snprintf(msg, ADC_BUF_LEN, "%u,%u,%u\r\n", noisy_val, filter_out, digital_val);
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+  }
 }
+
+/*
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == HALL_DIGITAL_Pin)
+  {
+    GPIO_PinState state = HAL_GPIO_ReadPin(HALL_DIGITAL_GPIO_Port, HALL_DIGITAL_Pin);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+    char msg[64];
+    snprintf(msg, sizeof(msg), "Rising edge, state: %d\r\n", state);
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+  }
+}
+*/
+
+/*
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == HALL_DIGITAL_Pin)
+  {
+    GPIO_PinState state = HAL_GPIO_ReadPin(HALL_DIGITAL_GPIO_Port, HALL_DIGITAL_Pin);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    char msg[64];
+    snprintf(msg, sizeof(msg), "Falling edge, state: %d\r\n", state);
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+  }
+} 
+*/
 
 /* USER CODE END 4 */
 
@@ -343,7 +412,8 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-    
+    char msg[] = "[ERROR]";
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
   }
   /* USER CODE END Error_Handler_Debug */
 }

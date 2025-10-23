@@ -1,0 +1,576 @@
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              		.section	.text.MX_GPIO_Init,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  21              	MX_GPIO_Init:
+  22              		@ args = 0, pretend = 0, frame = 32
+  23              		@ frame_needed = 0, uses_anonymous_args = 0
+  24 0000 10B5     		push	{r4, lr}
+  25 0002 88B0     		sub	sp, sp, #32
+  26 0004 03AC     		add	r4, sp, #12
+  27 0006 1422     		movs	r2, #20
+  28 0008 0021     		movs	r1, #0
+  29 000a 2000     		movs	r0, r4
+  30 000c FFF7FEFF 		bl	memset
+  31 0010 104B     		ldr	r3, .L2
+  32 0012 596B     		ldr	r1, [r3, #52]
+  33 0014 0422     		movs	r2, #4
+  34 0016 1143     		orrs	r1, r2
+  35 0018 5963     		str	r1, [r3, #52]
+  36 001a 596B     		ldr	r1, [r3, #52]
+  37 001c 0A40     		ands	r2, r1
+  38 001e 0092     		str	r2, [sp]
+  39 0020 009A     		ldr	r2, [sp]
+  40 0022 596B     		ldr	r1, [r3, #52]
+  41 0024 2022     		movs	r2, #32
+  42 0026 1143     		orrs	r1, r2
+  43 0028 5963     		str	r1, [r3, #52]
+  44 002a 596B     		ldr	r1, [r3, #52]
+  45 002c 0A40     		ands	r2, r1
+  46 002e 0192     		str	r2, [sp, #4]
+  47 0030 019A     		ldr	r2, [sp, #4]
+  48 0032 596B     		ldr	r1, [r3, #52]
+  49 0034 0122     		movs	r2, #1
+  50 0036 1143     		orrs	r1, r2
+  51 0038 5963     		str	r1, [r3, #52]
+  52 003a 5B6B     		ldr	r3, [r3, #52]
+  53 003c 1340     		ands	r3, r2
+  54 003e 0293     		str	r3, [sp, #8]
+  55 0040 029B     		ldr	r3, [sp, #8]
+  56 0042 0392     		str	r2, [sp, #12]
+  57 0044 0592     		str	r2, [sp, #20]
+  58 0046 A020     		movs	r0, #160
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 2
+
+
+  59 0048 2100     		movs	r1, r4
+  60 004a C005     		lsls	r0, r0, #23
+  61 004c FFF7FEFF 		bl	HAL_GPIO_Init
+  62 0050 08B0     		add	sp, sp, #32
+  63              		@ sp needed
+  64 0052 10BD     		pop	{r4, pc}
+  65              	.L3:
+  66              		.align	2
+  67              	.L2:
+  68 0054 00100240 		.word	1073876992
+  70              		.section	.text.MX_DMA_Init,"ax",%progbits
+  71              		.align	1
+  72              		.syntax unified
+  73              		.code	16
+  74              		.thumb_func
+  76              	MX_DMA_Init:
+  77              		@ args = 0, pretend = 0, frame = 8
+  78              		@ frame_needed = 0, uses_anonymous_args = 0
+  79 0000 00B5     		push	{lr}
+  80 0002 83B0     		sub	sp, sp, #12
+  81 0004 094A     		ldr	r2, .L5
+  82 0006 916B     		ldr	r1, [r2, #56]
+  83 0008 0123     		movs	r3, #1
+  84 000a 1943     		orrs	r1, r3
+  85 000c 9163     		str	r1, [r2, #56]
+  86 000e 926B     		ldr	r2, [r2, #56]
+  87 0010 1340     		ands	r3, r2
+  88 0012 0193     		str	r3, [sp, #4]
+  89 0014 019B     		ldr	r3, [sp, #4]
+  90 0016 0022     		movs	r2, #0
+  91 0018 0021     		movs	r1, #0
+  92 001a 0920     		movs	r0, #9
+  93 001c FFF7FEFF 		bl	HAL_NVIC_SetPriority
+  94 0020 0920     		movs	r0, #9
+  95 0022 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+  96 0026 03B0     		add	sp, sp, #12
+  97              		@ sp needed
+  98 0028 00BD     		pop	{pc}
+  99              	.L6:
+ 100 002a C046     		.align	2
+ 101              	.L5:
+ 102 002c 00100240 		.word	1073876992
+ 104              		.section	.text.map,"ax",%progbits
+ 105              		.align	1
+ 106              		.global	map
+ 107              		.syntax unified
+ 108              		.code	16
+ 109              		.thumb_func
+ 111              	map:
+ 112              		@ args = 4, pretend = 0, frame = 0
+ 113              		@ frame_needed = 0, uses_anonymous_args = 0
+ 114 0000 70B5     		push	{r4, r5, r6, lr}
+ 115 0002 1C00     		movs	r4, r3
+ 116 0004 04AB     		add	r3, sp, #16
+ 117 0006 1B88     		ldrh	r3, [r3]
+ 118 0008 451A     		subs	r5, r0, r1
+ 119 000a 181B     		subs	r0, r3, r4
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 3
+
+
+ 120 000c 6843     		muls	r0, r5
+ 121 000e 511A     		subs	r1, r2, r1
+ 122 0010 FFF7FEFF 		bl	__aeabi_idiv
+ 123 0014 2018     		adds	r0, r4, r0
+ 124 0016 80B2     		uxth	r0, r0
+ 125              		@ sp needed
+ 126 0018 70BD     		pop	{r4, r5, r6, pc}
+ 128              		.section	.text.toMilliVolt,"ax",%progbits
+ 129              		.align	1
+ 130              		.global	toMilliVolt
+ 131              		.syntax unified
+ 132              		.code	16
+ 133              		.thumb_func
+ 135              	toMilliVolt:
+ 136              		@ args = 0, pretend = 0, frame = 0
+ 137              		@ frame_needed = 0, uses_anonymous_args = 0
+ 138 0000 10B5     		push	{r4, lr}
+ 139 0002 034B     		ldr	r3, .L9
+ 140 0004 5843     		muls	r0, r3
+ 141 0006 0349     		ldr	r1, .L9+4
+ 142 0008 FFF7FEFF 		bl	__aeabi_idiv
+ 143 000c 80B2     		uxth	r0, r0
+ 144              		@ sp needed
+ 145 000e 10BD     		pop	{r4, pc}
+ 146              	.L10:
+ 147              		.align	2
+ 148              	.L9:
+ 149 0010 88130000 		.word	5000
+ 150 0014 FF0F0000 		.word	4095
+ 152              		.section	.rodata.HAL_ADC_ConvCpltCallback.str1.4,"aMS",%progbits,1
+ 153              		.align	2
+ 154              	.LC1:
+ 155 0000 25752C25 		.ascii	"%u,%u\015\012\000"
+ 155      750D0A00 
+ 156              		.section	.text.HAL_ADC_ConvCpltCallback,"ax",%progbits
+ 157              		.align	1
+ 158              		.global	HAL_ADC_ConvCpltCallback
+ 159              		.syntax unified
+ 160              		.code	16
+ 161              		.thumb_func
+ 163              	HAL_ADC_ConvCpltCallback:
+ 164              		@ args = 0, pretend = 0, frame = 64
+ 165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166 0000 30B5     		push	{r4, r5, lr}
+ 167 0002 93B0     		sub	sp, sp, #76
+ 168 0004 0268     		ldr	r2, [r0]
+ 169 0006 114B     		ldr	r3, .L14
+ 170 0008 9A42     		cmp	r2, r3
+ 171 000a 01D0     		beq	.L13
+ 172              	.L11:
+ 173 000c 13B0     		add	sp, sp, #76
+ 174              		@ sp needed
+ 175 000e 30BD     		pop	{r4, r5, pc}
+ 176              	.L13:
+ 177 0010 0F4B     		ldr	r3, .L14+4
+ 178 0012 1C88     		ldrh	r4, [r3]
+ 179 0014 A020     		movs	r0, #160
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 4
+
+
+ 180 0016 0121     		movs	r1, #1
+ 181 0018 C005     		lsls	r0, r0, #23
+ 182 001a FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 183 001e 0500     		movs	r5, r0
+ 184 0020 2000     		movs	r0, r4
+ 185 0022 FFF7FEFF 		bl	toMilliVolt
+ 186 0026 0300     		movs	r3, r0
+ 187 0028 0A4A     		ldr	r2, .L14+8
+ 188 002a 02AC     		add	r4, sp, #8
+ 189 002c 0095     		str	r5, [sp]
+ 190 002e 4021     		movs	r1, #64
+ 191 0030 2000     		movs	r0, r4
+ 192 0032 FFF7FEFF 		bl	snprintf
+ 193 0036 2000     		movs	r0, r4
+ 194 0038 FFF7FEFF 		bl	strlen
+ 195 003c 0123     		movs	r3, #1
+ 196 003e 82B2     		uxth	r2, r0
+ 197 0040 0548     		ldr	r0, .L14+12
+ 198 0042 5B42     		rsbs	r3, r3, #0
+ 199 0044 2100     		movs	r1, r4
+ 200 0046 FFF7FEFF 		bl	HAL_UART_Transmit
+ 201 004a DFE7     		b	.L11
+ 202              	.L15:
+ 203              		.align	2
+ 204              	.L14:
+ 205 004c 00240140 		.word	1073816576
+ 206 0050 00000000 		.word	adc_buf
+ 207 0054 00000000 		.word	.LC1
+ 208 0058 00000000 		.word	huart2
+ 210              		.section	.rodata.Error_Handler.str1.4,"aMS",%progbits,1
+ 211              		.align	2
+ 212              	.LC4:
+ 213 0000 5B455252 		.ascii	"[ERROR]\000"
+ 213      4F525D00 
+ 214              		.section	.text.Error_Handler,"ax",%progbits
+ 215              		.align	1
+ 216              		.global	Error_Handler
+ 217              		.syntax unified
+ 218              		.code	16
+ 219              		.thumb_func
+ 221              	Error_Handler:
+ 222              		@ Volatile: function does not return.
+ 223              		@ args = 0, pretend = 0, frame = 8
+ 224              		@ frame_needed = 0, uses_anonymous_args = 0
+ 225 0000 10B5     		push	{r4, lr}
+ 226 0002 82B0     		sub	sp, sp, #8
+ 227              		.syntax divided
+ 228              	@ 962 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 229 0004 72B6     		cpsid i
+ 230              	@ 0 "" 2
+ 231              		.thumb
+ 232              		.syntax unified
+ 233              	.L17:
+ 234 0006 074B     		ldr	r3, .L18
+ 235 0008 6A46     		mov	r2, sp
+ 236 000a 03CB     		ldmia	r3!, {r0, r1}
+ 237 000c 03C2     		stmia	r2!, {r0, r1}
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 5
+
+
+ 238 000e 6846     		mov	r0, sp
+ 239 0010 FFF7FEFF 		bl	strlen
+ 240 0014 0123     		movs	r3, #1
+ 241 0016 82B2     		uxth	r2, r0
+ 242 0018 0348     		ldr	r0, .L18+4
+ 243 001a 5B42     		rsbs	r3, r3, #0
+ 244 001c 6946     		mov	r1, sp
+ 245 001e FFF7FEFF 		bl	HAL_UART_Transmit
+ 246 0022 F0E7     		b	.L17
+ 247              	.L19:
+ 248              		.align	2
+ 249              	.L18:
+ 250 0024 00000000 		.word	.LC4
+ 251 0028 00000000 		.word	huart2
+ 253              		.section	.text.MX_ADC1_Init,"ax",%progbits
+ 254              		.align	1
+ 255              		.syntax unified
+ 256              		.code	16
+ 257              		.thumb_func
+ 259              	MX_ADC1_Init:
+ 260              		@ args = 0, pretend = 0, frame = 16
+ 261              		@ frame_needed = 0, uses_anonymous_args = 0
+ 262 0000 00B5     		push	{lr}
+ 263 0002 85B0     		sub	sp, sp, #20
+ 264 0004 0C22     		movs	r2, #12
+ 265 0006 0021     		movs	r1, #0
+ 266 0008 01A8     		add	r0, sp, #4
+ 267 000a FFF7FEFF 		bl	memset
+ 268 000e 1848     		ldr	r0, .L25
+ 269 0010 184B     		ldr	r3, .L25+4
+ 270 0012 0360     		str	r3, [r0]
+ 271 0014 8023     		movs	r3, #128
+ 272 0016 DB05     		lsls	r3, r3, #23
+ 273 0018 4360     		str	r3, [r0, #4]
+ 274 001a 0023     		movs	r3, #0
+ 275 001c 8360     		str	r3, [r0, #8]
+ 276 001e C360     		str	r3, [r0, #12]
+ 277 0020 8022     		movs	r2, #128
+ 278 0022 1206     		lsls	r2, r2, #24
+ 279 0024 0261     		str	r2, [r0, #16]
+ 280 0026 0422     		movs	r2, #4
+ 281 0028 4261     		str	r2, [r0, #20]
+ 282 002a 0376     		strb	r3, [r0, #24]
+ 283 002c 4376     		strb	r3, [r0, #25]
+ 284 002e 033A     		subs	r2, r2, #3
+ 285 0030 8276     		strb	r2, [r0, #26]
+ 286 0032 C261     		str	r2, [r0, #28]
+ 287 0034 4362     		str	r3, [r0, #36]
+ 288 0036 8362     		str	r3, [r0, #40]
+ 289 0038 2C21     		movs	r1, #44
+ 290 003a 4254     		strb	r2, [r0, r1]
+ 291 003c 0363     		str	r3, [r0, #48]
+ 292 003e 0132     		adds	r2, r2, #1
+ 293 0040 4263     		str	r2, [r0, #52]
+ 294 0042 3A32     		adds	r2, r2, #58
+ 295 0044 8354     		strb	r3, [r0, r2]
+ 296 0046 C364     		str	r3, [r0, #76]
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 6
+
+
+ 297 0048 FFF7FEFF 		bl	HAL_ADC_Init
+ 298 004c 0028     		cmp	r0, #0
+ 299 004e 0BD1     		bne	.L23
+ 300 0050 01A9     		add	r1, sp, #4
+ 301 0052 094B     		ldr	r3, .L25+8
+ 302 0054 0193     		str	r3, [sp, #4]
+ 303 0056 0123     		movs	r3, #1
+ 304 0058 4B60     		str	r3, [r1, #4]
+ 305 005a 0548     		ldr	r0, .L25
+ 306 005c FFF7FEFF 		bl	HAL_ADC_ConfigChannel
+ 307 0060 0028     		cmp	r0, #0
+ 308 0062 03D1     		bne	.L24
+ 309 0064 05B0     		add	sp, sp, #20
+ 310              		@ sp needed
+ 311 0066 00BD     		pop	{pc}
+ 312              	.L23:
+ 313 0068 FFF7FEFF 		bl	Error_Handler
+ 314              	.L24:
+ 315 006c FFF7FEFF 		bl	Error_Handler
+ 316              	.L26:
+ 317              		.align	2
+ 318              	.L25:
+ 319 0070 00000000 		.word	hadc1
+ 320 0074 00240140 		.word	1073816576
+ 321 0078 02000004 		.word	67108866
+ 323              		.section	.text.MX_USART2_UART_Init,"ax",%progbits
+ 324              		.align	1
+ 325              		.syntax unified
+ 326              		.code	16
+ 327              		.thumb_func
+ 329              	MX_USART2_UART_Init:
+ 330              		@ args = 0, pretend = 0, frame = 0
+ 331              		@ frame_needed = 0, uses_anonymous_args = 0
+ 332 0000 10B5     		push	{r4, lr}
+ 333 0002 0C48     		ldr	r0, .L30
+ 334 0004 0C4B     		ldr	r3, .L30+4
+ 335 0006 0360     		str	r3, [r0]
+ 336 0008 E123     		movs	r3, #225
+ 337 000a 5B02     		lsls	r3, r3, #9
+ 338 000c 4360     		str	r3, [r0, #4]
+ 339 000e 0023     		movs	r3, #0
+ 340 0010 8360     		str	r3, [r0, #8]
+ 341 0012 C360     		str	r3, [r0, #12]
+ 342 0014 0361     		str	r3, [r0, #16]
+ 343 0016 0C22     		movs	r2, #12
+ 344 0018 4261     		str	r2, [r0, #20]
+ 345 001a 8361     		str	r3, [r0, #24]
+ 346 001c C361     		str	r3, [r0, #28]
+ 347 001e 0362     		str	r3, [r0, #32]
+ 348 0020 4362     		str	r3, [r0, #36]
+ 349 0022 8362     		str	r3, [r0, #40]
+ 350 0024 FFF7FEFF 		bl	HAL_UART_Init
+ 351 0028 0028     		cmp	r0, #0
+ 352 002a 00D1     		bne	.L29
+ 353              		@ sp needed
+ 354 002c 10BD     		pop	{r4, pc}
+ 355              	.L29:
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 7
+
+
+ 356 002e FFF7FEFF 		bl	Error_Handler
+ 357              	.L31:
+ 358 0032 C046     		.align	2
+ 359              	.L30:
+ 360 0034 00000000 		.word	huart2
+ 361 0038 00440040 		.word	1073759232
+ 363              		.section	.text.SystemClock_Config,"ax",%progbits
+ 364              		.align	1
+ 365              		.global	SystemClock_Config
+ 366              		.syntax unified
+ 367              		.code	16
+ 368              		.thumb_func
+ 370              	SystemClock_Config:
+ 371              		@ args = 0, pretend = 0, frame = 48
+ 372              		@ frame_needed = 0, uses_anonymous_args = 0
+ 373 0000 10B5     		push	{r4, lr}
+ 374 0002 8CB0     		sub	sp, sp, #48
+ 375 0004 05AC     		add	r4, sp, #20
+ 376 0006 1C22     		movs	r2, #28
+ 377 0008 0021     		movs	r1, #0
+ 378 000a 2000     		movs	r0, r4
+ 379 000c FFF7FEFF 		bl	memset
+ 380 0010 1422     		movs	r2, #20
+ 381 0012 0021     		movs	r1, #0
+ 382 0014 6846     		mov	r0, sp
+ 383 0016 FFF7FEFF 		bl	memset
+ 384 001a 1249     		ldr	r1, .L37
+ 385 001c 0B68     		ldr	r3, [r1]
+ 386 001e 0722     		movs	r2, #7
+ 387 0020 9343     		bics	r3, r2
+ 388 0022 063A     		subs	r2, r2, #6
+ 389 0024 1343     		orrs	r3, r2
+ 390 0026 0B60     		str	r3, [r1]
+ 391 0028 0592     		str	r2, [sp, #20]
+ 392 002a 8023     		movs	r3, #128
+ 393 002c 5B02     		lsls	r3, r3, #9
+ 394 002e 0693     		str	r3, [sp, #24]
+ 395 0030 2000     		movs	r0, r4
+ 396 0032 FFF7FEFF 		bl	HAL_RCC_OscConfig
+ 397 0036 0028     		cmp	r0, #0
+ 398 0038 0FD1     		bne	.L35
+ 399 003a 6846     		mov	r0, sp
+ 400 003c 0723     		movs	r3, #7
+ 401 003e 0093     		str	r3, [sp]
+ 402 0040 063B     		subs	r3, r3, #6
+ 403 0042 0193     		str	r3, [sp, #4]
+ 404 0044 0023     		movs	r3, #0
+ 405 0046 0293     		str	r3, [sp, #8]
+ 406 0048 0393     		str	r3, [sp, #12]
+ 407 004a 0493     		str	r3, [sp, #16]
+ 408 004c 0121     		movs	r1, #1
+ 409 004e FFF7FEFF 		bl	HAL_RCC_ClockConfig
+ 410 0052 0028     		cmp	r0, #0
+ 411 0054 03D1     		bne	.L36
+ 412 0056 0CB0     		add	sp, sp, #48
+ 413              		@ sp needed
+ 414 0058 10BD     		pop	{r4, pc}
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 8
+
+
+ 415              	.L35:
+ 416 005a FFF7FEFF 		bl	Error_Handler
+ 417              	.L36:
+ 418 005e FFF7FEFF 		bl	Error_Handler
+ 419              	.L38:
+ 420 0062 C046     		.align	2
+ 421              	.L37:
+ 422 0064 00200240 		.word	1073881088
+ 424              		.section	.text.main,"ax",%progbits
+ 425              		.align	1
+ 426              		.global	main
+ 427              		.syntax unified
+ 428              		.code	16
+ 429              		.thumb_func
+ 431              	main:
+ 432              		@ Volatile: function does not return.
+ 433              		@ args = 0, pretend = 0, frame = 0
+ 434              		@ frame_needed = 0, uses_anonymous_args = 0
+ 435 0000 10B5     		push	{r4, lr}
+ 436 0002 FFF7FEFF 		bl	HAL_Init
+ 437 0006 FFF7FEFF 		bl	SystemClock_Config
+ 438 000a FFF7FEFF 		bl	MX_GPIO_Init
+ 439 000e FFF7FEFF 		bl	MX_DMA_Init
+ 440 0012 FFF7FEFF 		bl	MX_ADC1_Init
+ 441 0016 FFF7FEFF 		bl	MX_USART2_UART_Init
+ 442 001a 084C     		ldr	r4, .L41
+ 443 001c 2000     		movs	r0, r4
+ 444 001e FFF7FEFF 		bl	HAL_ADCEx_Calibration_Start
+ 445 0022 0020     		movs	r0, #0
+ 446 0024 FFF7FEFF 		bl	BSP_LED_Init
+ 447 0028 0121     		movs	r1, #1
+ 448 002a 0020     		movs	r0, #0
+ 449 002c FFF7FEFF 		bl	BSP_PB_Init
+ 450 0030 0349     		ldr	r1, .L41+4
+ 451 0032 4022     		movs	r2, #64
+ 452 0034 2000     		movs	r0, r4
+ 453 0036 FFF7FEFF 		bl	HAL_ADC_Start_DMA
+ 454              	.L40:
+ 455 003a FEE7     		b	.L40
+ 456              	.L42:
+ 457              		.align	2
+ 458              	.L41:
+ 459 003c 00000000 		.word	hadc1
+ 460 0040 00000000 		.word	adc_buf
+ 462              		.global	adc_buf
+ 463              		.section	.bss.adc_buf,"aw",%nobits
+ 464              		.align	2
+ 467              	adc_buf:
+ 468 0000 00000000 		.space	128
+ 468      00000000 
+ 468      00000000 
+ 468      00000000 
+ 468      00000000 
+ 469              		.global	huart2
+ 470              		.section	.bss.huart2,"aw",%nobits
+ 471              		.align	2
+ 474              	huart2:
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 9
+
+
+ 475 0000 00000000 		.space	148
+ 475      00000000 
+ 475      00000000 
+ 475      00000000 
+ 475      00000000 
+ 476              		.global	hdma_adc1
+ 477              		.section	.bss.hdma_adc1,"aw",%nobits
+ 478              		.align	2
+ 481              	hdma_adc1:
+ 482 0000 00000000 		.space	92
+ 482      00000000 
+ 482      00000000 
+ 482      00000000 
+ 482      00000000 
+ 483              		.global	hadc1
+ 484              		.section	.bss.hadc1,"aw",%nobits
+ 485              		.align	2
+ 488              	hadc1:
+ 489 0000 00000000 		.space	100
+ 489      00000000 
+ 489      00000000 
+ 489      00000000 
+ 489      00000000 
+ 490              		.global	__aeabi_idiv
+ 491              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 14.2.1 20241119"
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:16     .text.MX_GPIO_Init:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:21     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:68     .text.MX_GPIO_Init:00000054 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:71     .text.MX_DMA_Init:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:76     .text.MX_DMA_Init:00000000 MX_DMA_Init
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:102    .text.MX_DMA_Init:0000002c $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:105    .text.map:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:111    .text.map:00000000 map
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:129    .text.toMilliVolt:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:135    .text.toMilliVolt:00000000 toMilliVolt
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:149    .text.toMilliVolt:00000010 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:153    .rodata.HAL_ADC_ConvCpltCallback.str1.4:00000000 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:157    .text.HAL_ADC_ConvCpltCallback:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:163    .text.HAL_ADC_ConvCpltCallback:00000000 HAL_ADC_ConvCpltCallback
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:205    .text.HAL_ADC_ConvCpltCallback:0000004c $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:467    .bss.adc_buf:00000000 adc_buf
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:474    .bss.huart2:00000000 huart2
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:211    .rodata.Error_Handler.str1.4:00000000 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:215    .text.Error_Handler:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:221    .text.Error_Handler:00000000 Error_Handler
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:250    .text.Error_Handler:00000024 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:254    .text.MX_ADC1_Init:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:259    .text.MX_ADC1_Init:00000000 MX_ADC1_Init
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:319    .text.MX_ADC1_Init:00000070 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:488    .bss.hadc1:00000000 hadc1
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:324    .text.MX_USART2_UART_Init:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:329    .text.MX_USART2_UART_Init:00000000 MX_USART2_UART_Init
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:360    .text.MX_USART2_UART_Init:00000034 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:364    .text.SystemClock_Config:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:370    .text.SystemClock_Config:00000000 SystemClock_Config
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:422    .text.SystemClock_Config:00000064 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:425    .text.main:00000000 $t
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:431    .text.main:00000000 main
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:459    .text.main:0000003c $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:464    .bss.adc_buf:00000000 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:471    .bss.huart2:00000000 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:481    .bss.hdma_adc1:00000000 hdma_adc1
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:478    .bss.hdma_adc1:00000000 $d
+/var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s:485    .bss.hadc1:00000000 $d
+
+UNDEFINED SYMBOLS
+memset
+HAL_GPIO_Init
+HAL_NVIC_SetPriority
+HAL_NVIC_EnableIRQ
+__aeabi_idiv
+HAL_GPIO_ReadPin
+snprintf
+strlen
+HAL_UART_Transmit
+HAL_ADC_Init
+HAL_ADC_ConfigChannel
+HAL_UART_Init
+HAL_RCC_OscConfig
+HAL_RCC_ClockConfig
+ARM GAS  /var/folders/3q/0p8b__hx1wx8zj8b56q9glhc0000gn/T//ccb6lyur.s 			page 11
+
+
+HAL_Init
+HAL_ADCEx_Calibration_Start
+BSP_LED_Init
+BSP_PB_Init
+HAL_ADC_Start_DMA
