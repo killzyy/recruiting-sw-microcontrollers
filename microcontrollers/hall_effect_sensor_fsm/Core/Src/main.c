@@ -44,7 +44,6 @@
 #define ADC_BUF_LEN 64
 #define RX_BUF_LEN 64
 #define FILTER_LEN 150
-#define CMD_BUF_LEN 64
 
 /* USER CODE END PD */
 
@@ -80,9 +79,6 @@ uint32_t sum = 0;
 
 // level detection in listening state
 uint32_t hall_high_time = 0;
-
-// cli commands buffer
-char cmd_buf[CMD_BUF_LEN];
 
 // available commands
 typedef enum
