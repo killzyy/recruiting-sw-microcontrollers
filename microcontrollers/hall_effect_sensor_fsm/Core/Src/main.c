@@ -41,7 +41,7 @@
 
 #define M_PI 3.14159265358979323846
 
-#define ADC_BUF_LEN 64
+#define ADC_BUF_LEN 4096
 #define RX_BUF_LEN 64
 #define FILTER_LEN 150
 
@@ -664,5 +664,6 @@ void assert_failed(uint8_t *file, uint32_t line)
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
+
 
 #endif /* USE_FULL_ASSERT */
