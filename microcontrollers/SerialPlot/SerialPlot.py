@@ -1,3 +1,5 @@
+import numpy as np
+import sounddevice as sd
 import serial
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -6,10 +8,10 @@ from collections import deque
 
 # SERIAL SETTINGS
 SERIAL_PORT = '/dev/tty.usbmodem1403'
-BAUD_RATE = 115200
+BAUD_RATE = 9600
 PLOT_LEN = 100
 
-ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0.05)
+ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0.01)
 ser.reset_input_buffer()
 
 # DATA VARIABLES
@@ -20,7 +22,7 @@ digital_data = deque([0]*PLOT_LEN, maxlen=PLOT_LEN)
 # PLOT STYLE
 plt.style.use('dark_background')
 
-# PLOT CONFIGURATION
+# PLOT CONFIG
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 7))
 fig.canvas.manager.set_window_title('Serial Plot')
 
@@ -47,6 +49,7 @@ def update_plot(frame):
     try:
         while ser.in_waiting:
             line = ser.readline().decode(errors='ignore').strip()
+            print(line)
             if not line:
                 continue
 

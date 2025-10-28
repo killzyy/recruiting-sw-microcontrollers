@@ -28,11 +28,13 @@ build/debug/main.o: Core/Src/main.c Core/Inc/main.h \
  Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_flash_ex.h \
  Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_pwr.h \
  Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_pwr_ex.h \
+ Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_tim.h \
+ Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_tim_ex.h \
  Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_uart.h \
  Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_uart_ex.h \
  Drivers/BSP/STM32C0xx_Nucleo/stm32c0xx_nucleo.h \
  Core/Inc/stm32c0xx_nucleo_conf.h \
- Drivers/BSP/STM32C0xx_Nucleo/stm32c0xx_nucleo_errno.h
+ Drivers/BSP/STM32C0xx_Nucleo/stm32c0xx_nucleo_errno.h Core/Inc/fsm.h
 Core/Inc/main.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_ll_system.h:
@@ -64,8 +66,11 @@ Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_flash.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_flash_ex.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_pwr.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_pwr_ex.h:
+Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_tim.h:
+Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_tim_ex.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_uart.h:
 Drivers/STM32C0xx_HAL_Driver/Inc/stm32c0xx_hal_uart_ex.h:
 Drivers/BSP/STM32C0xx_Nucleo/stm32c0xx_nucleo.h:
 Core/Inc/stm32c0xx_nucleo_conf.h:
 Drivers/BSP/STM32C0xx_Nucleo/stm32c0xx_nucleo_errno.h:
+Core/Inc/fsm.h:
