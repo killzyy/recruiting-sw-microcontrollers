@@ -65,6 +65,7 @@ UART_HandleTypeDef huart2;
 
 // adc buffer
 uint16_t adc_buf[ADC_BUF_LEN];
+bool adc_dma_started = false;
 
 // usart
 uint8_t rx_byte;
@@ -195,7 +196,7 @@ void cli_process_cmd(const char* cmd)
   else
   {
     char msg[64];
-    snprintf(msg, sizeof(msg), "wrong command: %s\r\n", cmd);
+    snprintf(msg, sizeof(msg), "unknown command: %s\r\n", cmd);
     print(msg);
   }
 }
@@ -227,7 +228,6 @@ int main(void)
   */
 static void MX_DMA_Init(void)
 {
-
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
 
@@ -468,10 +468,13 @@ state_t do_LISTENING(void)
   GPIO_PinState digital_val;
   filter_out = 0;
 
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 10);
-  analog_val = HAL_ADC_GetValue(&hadc1);
+  if (!adc_dma_started)
+  {
+    if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, ADC_BUF_LEN) != HAL_OK) { next_state = STATE_ERROR; }
+    adc_dma_started = true;
+  }
 
+  analog_val = adc_buf[0];
   analog_mv = toMilliVolt(analog_val);
   digital_val = HAL_GPIO_ReadPin(HALL_DIGITAL_GPIO_Port, HALL_DIGITAL_Pin);
 
@@ -505,7 +508,8 @@ state_t do_LISTENING(void)
     }
     else if (HAL_GetTick() - hall_high_time >= 5000)
     {
-      HAL_ADC_Stop(&hadc1);
+      HAL_ADC_Stop_DMA(&hadc1);
+      adc_dma_started = false;
       next_state = STATE_WARNING;
       hall_high_time = 0;
     }
@@ -514,7 +518,8 @@ state_t do_LISTENING(void)
 
   if (BSP_PB_GetState(BUTTON_USER) == GPIO_PIN_RESET) 
   {
-    HAL_ADC_Stop(&hadc1);
+    HAL_ADC_Stop_DMA(&hadc1);
+    adc_dma_started = false;
     BSP_LED_Off(LED_GREEN);
     next_state = STATE_PAUSE;
     HAL_Delay(200);
@@ -624,6 +629,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
     }
 }
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  if (hadc->Instance == ADC1) {}
+}
+
 /* USER CODE END 4 */
 
 /**
@@ -654,4 +664,5 @@ void assert_failed(uint8_t *file, uint32_t line)
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
+
 #endif /* USE_FULL_ASSERT */
