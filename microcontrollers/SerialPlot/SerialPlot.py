@@ -1,3 +1,5 @@
+import numpy as np
+import sounddevice as sd
 import serial
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -6,11 +8,15 @@ from collections import deque
 
 # SERIAL SETTINGS
 SERIAL_PORT = '/dev/tty.usbmodem1403'
-BAUD_RATE = 115200
+BAUD_RATE = 9600
 PLOT_LEN = 100
 
-ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0.05)
+ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0.01)
 ser.reset_input_buffer()
+
+# AUDIO SETTINGS
+SAMPLE_RATE = 44100
+BUFFER_SIZE = 1024
 
 # DATA VARIABLES
 analog_data = deque([0.0]*PLOT_LEN, maxlen=PLOT_LEN)
@@ -20,7 +26,7 @@ digital_data = deque([0]*PLOT_LEN, maxlen=PLOT_LEN)
 # PLOT STYLE
 plt.style.use('dark_background')
 
-# PLOT CONFIGURATION
+# PLOT CONFIG
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 7))
 fig.canvas.manager.set_window_title('Serial Plot')
 
@@ -42,11 +48,38 @@ ax1.legend(loc='lower right')
 
 plt.tight_layout()
 
+def map_voltage_to_frequency(volts, min_freq=220, max_freq=880):
+    return min_freq + (volts / 5.0) * (max_freq - min_freq)
+
+def map_voltage_to_amplitude(volts):
+    return min(max(volts / 5.0, 0.0), 1.0)
+
+def audio_callback(outdata, frames, time, status):
+    global analog_data
+    if status:
+        print(status)
+
+    volts = analog_data[-1]
+    freq = map_voltage_to_frequency(volts)
+    amp = map_voltage_to_amplitude(volts)
+
+    t = (np.arange(frames) + audio_callback.phase) / SAMPLE_RATE
+    outdata[:, 0] = amp * np.sin(2 * np.pi * freq * t)
+    audio_callback.phase += frames
+
+
+audio_callback.phase = 0
+
+# Start audio stream
+stream = sd.OutputStream(channels=1, callback=audio_callback, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE)
+stream.start()
+
 # UPDATE PLOT
 def update_plot(frame):
     try:
         while ser.in_waiting:
             line = ser.readline().decode(errors='ignore').strip()
+            print(line)
             if not line:
                 continue
 
