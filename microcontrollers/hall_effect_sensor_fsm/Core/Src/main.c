@@ -81,6 +81,32 @@ uint32_t sum = 0;
 // level detection in listening state
 uint32_t hall_high_time = 0;
 
+// error type
+typedef enum
+{
+  ENOERR,
+  EHALINIT,
+  EOSCCONFIG,
+  ECLKCONFIG,
+  EADCINIT,
+  EADCCONFIG,
+  ECHNCONFIG,
+  EUARTINIT,
+  ETIMINIT,
+  EADCCALIB,
+  ERXFAIL,
+  EADCSTRFAIL,
+  EADCSTPFAIL,
+  ETIMSTRFAIL,
+  ETIMSTPFAIL
+} error_t;
+
+//
+error_t error_type = ENOERR;
+const char* error_type_msg[] = { "NO ERROR", "HAL INIT", "OSCILLATOR CONFIG", "CLOCK CONFIG", "ADC INIT", "ADC CONFIG",
+                                 "ADC CHANNEL CONFIG", "UART INIT", "TIM INIT", "ADC CALIBRATION", "RX FAILED",
+                                 "ADC START FAILED", "ADC STOP FAILED", "TIM START FAILED", "TIM STOP FAILED" };
+
 // available commands
 typedef enum
 {
@@ -146,18 +172,6 @@ float gaussian_noise_clt(float mean, float stddev)
   sum -= 3.0f;
 
   return mean + stddev * sum;
-}
-
-void start_timer(uint32_t ms)
-{
-  uint32_t period = ms - 1;
-  __HAL_TIM_SET_AUTORELOAD(&htim14, period);
-  HAL_TIM_Base_Start_IT(&htim14);
-}
-
-void stop_timer()
-{
-  HAL_TIM_Base_Stop_IT(&htim14);
 }
 
 void cli_process_cmd(const char* cmd)
@@ -278,7 +292,11 @@ state_t do_INIT(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  if (HAL_Init() != HAL_OK) { next_state = STATE_ERROR; };
+  if (HAL_Init() != HAL_OK)
+  {
+    next_state = STATE_ERROR;
+    error_type = EHALINIT;
+  }
 
   /* USER CODE BEGIN Init */
 
@@ -298,6 +316,7 @@ state_t do_INIT(void)
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     next_state = STATE_ERROR;
+    error_type = EOSCCONFIG;
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
@@ -312,6 +331,7 @@ state_t do_INIT(void)
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     next_state = STATE_ERROR;
+    error_type = ECLKCONFIG;
   }
 
 
@@ -356,6 +376,7 @@ state_t do_INIT(void)
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     next_state = STATE_ERROR;
+    error_type = EADCINIT;
   }
 
   /** Configure Regular Channel
@@ -365,6 +386,7 @@ state_t do_INIT(void)
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     next_state = STATE_ERROR;
+    error_type = ECHNCONFIG;
   }
   /* USER CODE BEGIN ADC1_Init 2 */
 
@@ -392,6 +414,7 @@ state_t do_INIT(void)
   if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     next_state = STATE_ERROR;
+    error_type = EUARTINIT;
   }
 
   /* USER CODE BEGIN USART2_Init 2 */
@@ -416,6 +439,7 @@ state_t do_INIT(void)
   if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
   {
     next_state = STATE_ERROR;
+    error_type = ETIMINIT;
   }
   /* USER CODE BEGIN TIM14_Init 2 */
 
@@ -425,7 +449,11 @@ state_t do_INIT(void)
   /* USER CODE BEGIN 2 */
 
   srand(time(NULL));
-  if (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK) { next_state = STATE_ERROR; }
+  if (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK)
+  {
+    next_state = STATE_ERROR; 
+    error_type = EADCCALIB;
+  }
 
   /* USER CODE END 2 */
 
@@ -444,7 +472,11 @@ state_t do_WAIT_REQUEST(void)
 {
   state_t next_state = NO_CHANGE;
   
-  HAL_UART_Receive_IT(&huart2, &rx_byte, 1);
+  if (HAL_UART_Receive_IT(&huart2, &rx_byte, 1) != HAL_OK)
+  {
+    next_state = STATE_ERROR;
+    error_type = ERXFAIL;
+  }
 
   if (BSP_PB_GetState(BUTTON_USER) == GPIO_PIN_RESET) 
   {
@@ -470,7 +502,11 @@ state_t do_LISTENING(void)
 
   if (!adc_dma_started)
   {
-    if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, ADC_BUF_LEN) != HAL_OK) { next_state = STATE_ERROR; }
+    if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, ADC_BUF_LEN) != HAL_OK)
+    {
+      next_state = STATE_ERROR;
+      error_type = EADCSTRFAIL;
+    }
     adc_dma_started = true;
   }
 
@@ -508,9 +544,13 @@ state_t do_LISTENING(void)
     }
     else if (HAL_GetTick() - hall_high_time >= 5000)
     {
-      HAL_ADC_Stop_DMA(&hadc1);
-      adc_dma_started = false;
       next_state = STATE_WARNING;
+      if (HAL_ADC_Stop_DMA(&hadc1) != HAL_OK)
+      {
+        next_state = STATE_ERROR;
+        error_type = EADCSTPFAIL;
+      }
+      adc_dma_started = false;
       hall_high_time = 0;
     }
   }
@@ -518,10 +558,14 @@ state_t do_LISTENING(void)
 
   if (BSP_PB_GetState(BUTTON_USER) == GPIO_PIN_RESET) 
   {
-    HAL_ADC_Stop_DMA(&hadc1);
-    adc_dma_started = false;
     BSP_LED_Off(LED_GREEN);
     next_state = STATE_PAUSE;
+    if (HAL_ADC_Stop_DMA(&hadc1) != HAL_OK)
+    {
+      next_state = STATE_ERROR;
+      error_type = EADCSTPFAIL;
+    }
+    adc_dma_started = false;
     HAL_Delay(200);
   }
  
@@ -535,13 +579,26 @@ state_t do_PAUSE(void)
   state_t next_state = NO_CHANGE;
   hall_high_time = 0;
   
-  start_timer(1000);
+  __HAL_TIM_SET_AUTORELOAD(&htim14, 1000);
+  if (HAL_TIM_Base_Start_IT(&htim14) != HAL_OK)
+  {
+    next_state = STATE_ERROR;
+    error_type = ETIMSTRFAIL;
+  }
 
-  HAL_UART_Receive_IT(&huart2, &rx_byte, 1);
+  if (HAL_UART_Receive_IT(&huart2, &rx_byte, 1) != HAL_OK)
+  {
+    next_state = STATE_ERROR;
+    error_type = ERXFAIL;
+  }
 
   if (BSP_PB_GetState(BUTTON_USER) == GPIO_PIN_RESET)
   {
-    stop_timer();
+    if (HAL_TIM_Base_Stop_IT(&htim14) != HAL_OK)
+    {
+      next_state = STATE_ERROR;
+      error_type = ETIMSTPFAIL;
+    }
     next_state = STATE_LISTENING;
     HAL_Delay(200);
   }
@@ -555,7 +612,11 @@ state_t do_WARNING(void)
 {
   state_t next_state = NO_CHANGE;
   
-  stop_timer();
+  if (HAL_TIM_Base_Stop_IT(&htim14) != HAL_OK)
+  {
+    next_state = STATE_ERROR;
+    error_type = ETIMSTPFAIL;
+  }
   BSP_LED_Off(LED_GREEN);
   print("WARNING\r\n");
 
@@ -573,9 +634,17 @@ state_t do_WARNING(void)
 state_t do_ERROR(void) 
 {
   state_t next_state = NO_CHANGE;
+  
+  __HAL_TIM_SET_AUTORELOAD(&htim14, 200);
+  if (HAL_TIM_Base_Start_IT(&htim14) != HAL_OK)
+  {
+    next_state = STATE_ERROR;
+    error_type = ETIMSTRFAIL;
+  }
 
-  start_timer(200);
-  print("ERROR\r\n");
+  char error_msg[64];
+  snprintf(error_msg, sizeof(error_msg), "ERROR: %s\r\n", error_type_msg[error_type]);
+  print(error_msg);
   
   if (BSP_PB_GetState(BUTTON_USER) == GPIO_PIN_RESET) 
   {
@@ -664,6 +733,5 @@ void assert_failed(uint8_t *file, uint32_t line)
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
-
 
 #endif /* USE_FULL_ASSERT */
